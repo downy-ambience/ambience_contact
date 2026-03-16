@@ -751,6 +751,22 @@
       box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
     }
 
+    /* 국가코드 + 전화번호 그룹 */
+    .phone-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .phone-group .phone-country {
+      width: auto;
+      flex-shrink: 0;
+      padding: 8px 6px;
+    }
+
+    .phone-group input {
+      flex: 1;
+    }
+
     .modal-footer {
       display: flex;
       gap: 8px;
@@ -1205,7 +1221,23 @@
           <option value="la">Ambience LA</option>
         </select>
       </div>
-      <div class="field"><label>연락처</label><input id="f-phone" type="tel" placeholder="010-0000-0000"></div>
+      <div class="field">
+        <label>연락수 (국가코드)</label>
+        <div class="phone-group">
+          <select id="f-countrycode" class="phone-country">
+            <option value="+82">🇰🇷 +82</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+33">🇫🇷 +33</option>
+          </select>
+          <input id="f-phone" type="tel" placeholder="010-0000-0000">
+        </div>
+      </div>
       <div class="field"><label>이메일</label><input id="f-email" type="email" placeholder="name@ambienceseoul.com"></div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal()">취소</button>
@@ -1263,6 +1295,11 @@
       '김인철': { email: 'ic@thepairshow.com', engName: 'Kim Incheol' },
       '이세온': { email: 'on@thepairshow.com', engName: 'Lee Seon' },
       '원준희': { email: 'wonjoonhee@thepairshow.com', engName: 'Won Joonhee' },
+    };
+
+    // 국가코드 맵핑 (기본: +82, 예외만 지정)
+    const COUNTRY_CODE_MAP = {
+      '조민예': '+1',  // 미국
     };
 
     // 최초 seed 데이터
@@ -1385,18 +1422,23 @@
       const col = collection(db, 'contacts');
       for (const c of INITIAL_CONTACTS) {
         const mapped = EMAIL_MAP[c.name] || {};
-        await addDoc(col, { ...c, phone: '', email: mapped.email || '', engName: mapped.engName || '', createdAt: Date.now() });
+        const cc = COUNTRY_CODE_MAP[c.name] || '+82';
+        await addDoc(col, { ...c, phone: '', countryCode: cc, email: mapped.email || '', engName: mapped.engName || '', createdAt: Date.now() });
       }
     }
 
     async function runMigration(snap) {
       for (const docSnap of snap.docs) {
         const data = docSnap.data();
-        const mapped = EMAIL_MAP[data.name];
-        if (!mapped) continue;
         const updates = {};
-        if (!data.email && mapped.email) updates.email = mapped.email;
-        if (!data.engName && mapped.engName) updates.engName = mapped.engName;
+        const mapped = EMAIL_MAP[data.name];
+        if (mapped) {
+          if (!data.email && mapped.email) updates.email = mapped.email;
+          if (!data.engName && mapped.engName) updates.engName = mapped.engName;
+        }
+        if (!data.countryCode) {
+          updates.countryCode = COUNTRY_CODE_MAP[data.name] || '+82';
+        }
         if (Object.keys(updates).length > 0) {
           await updateDoc(doc(db, 'contacts', docSnap.id), updates);
         }
@@ -1437,8 +1479,10 @@
       }
       grid.innerHTML = list.map(c => {
         const d = DEPTS[c.dept] || DEPTS.production;
-        const phoneEl = c.phone ? `<a class="detail-call" href="tel:${c.phone}">${c.phone}</a>` : `<span class="detail-empty">미입력</span>`;
-        const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
+        const cc = c.countryCode || '+82';
+        const telHref = c.phone ? `tel:${cc}${c.phone.replace(/[^0-9]/g, '')}` : '';
+        const phoneLabel = c.phone ? `${cc} ${c.phone}` : '';
+        const phoneEl = c.phone ? `<a class="detail-call" href="${telHref}">${phoneLabel}</a>` : `<span class="detail-empty">미입력</span>`; const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
         return `<div class="card" onclick="openModal('${c.id}')">
         <div class="card-top">
           <div class="avatar ${d.av}">${initials(c.name)}</div>
@@ -1544,11 +1588,13 @@
           document.getElementById('f-engname').value = c.engName || '';
           document.getElementById('f-role').value = c.role || '';
           document.getElementById('f-dept').value = c.dept || 'production';
+          document.getElementById('f-countrycode').value = c.countryCode || '+82';
           document.getElementById('f-phone').value = c.phone || '';
           document.getElementById('f-email').value = c.email || '';
         }
       } else {
         ['f-name', 'f-engname', 'f-role', 'f-phone', 'f-email'].forEach(fid => { document.getElementById(fid).value = ''; });
+        document.getElementById('f-countrycode').value = '+82';
         document.getElementById('f-dept').value = 'production';
       }
       document.getElementById('modal').classList.add('open');
@@ -1566,13 +1612,11 @@
         engName: document.getElementById('f-engname').value.trim(),
         role: document.getElementById('f-role').value.trim(),
         dept: document.getElementById('f-dept').value,
+        countryCode: document.getElementById('f-countrycode').value,
         phone: document.getElementById('f-phone').value.trim(),
         email: document.getElementById('f-email').value.trim(),
       };
-      if (!data.name) {
-        document.getElementById('f-name').focus();
-        return;
-      }
+      if (!data.name) { document.getElementById('f-name').focus(); return; }
       closeModal();
       try {
         if (editingId) {
