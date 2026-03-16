@@ -1385,6 +1385,18 @@
       }
     };
 
+    function getRoleRank(role) {
+      const r = role.toLowerCase();
+      if (r.includes('founder') || r.includes('ceo') || r.includes('head')) return 0;
+      if (r.includes('director')) return 1;
+      if (r.includes('senior') || r.includes('lead')) return 2;
+      if (r.includes('producer') || r.includes('manager') && !r.includes('production manager') && !r.includes('project manager')) return 3;
+      if (r.includes('production manager') || r.includes('project manager')) return 4;
+      if (r.includes('coordinator') || r.includes('조감독')) return 5;
+      if (r.includes('compositor') || r.includes('designer')) return 6;
+      return 9;
+    }
+
     function renderOrgChart() {
       const orgView = document.getElementById('org-view');
       const grouped = {};
@@ -1392,7 +1404,9 @@
       contacts.forEach(c => { if (grouped[c.dept]) grouped[c.dept].push(c); });
 
       orgView.innerHTML = Object.entries(DEPTS).map(([deptKey, dept]) => {
-        const members = grouped[deptKey] || [];
+        const members = (grouped[deptKey] || [])
+          .slice()
+          .sort((a, b) => getRoleRank(a.role) - getRoleRank(b.role));
         if (!members.length) return '';
         const membersHtml = members.map(c => `
           <div class="org-member-row">
