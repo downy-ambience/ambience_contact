@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambience Inc. — 사내 연락망</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f7f7f5;
+      --surface: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.14);
+      --text-primary: #111111;
+      --text-secondary: #666666;
+      --text-muted: #aaaaaa;
+      --accent: #111111;
+      --danger: #dc3545;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── LOGIN SCREEN ─── */
+    #login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      background: linear-gradient(160deg, #f0f0ee 0%, #e8e8e4 100%);
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 48px;
+      height: 48px;
+      background: #111;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .login-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .login-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .login-domains {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .domain-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      background: #f0f0ee;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-google:hover {
+      background: #f7f7f5;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-google:active {
+      transform: scale(0.98);
+    }
+
+    .google-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .login-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1.5rem;
+      line-height: 1.6;
+    }
+
+    /* ─── ERROR SCREEN ─── */
+    #error-screen {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      background: linear-gradient(160deg, #f0f0ee 0%, #e8e8e4 100%);
+    }
+
+    .error-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .error-icon {
+      font-size: 36px;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-retry {
+      padding: 10px 20px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-retry:hover {
+      background: #f0f0ee;
+    }
+
+    /* ─── LOADING ─── */
+    #loading-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--text-primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ─── APP ─── */
+    #app-screen {
+      display: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(247, 247, 245, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 50;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-logo {
+      width: 28px;
+      height: 28px;
+      background: #111;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+
+    .user-avatar-placeholder {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e0e0de;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .btn-logout {
+      padding: 5px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-logout:hover {
+      background: #f0f0ee;
+      color: var(--text-primary);
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .page-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .page-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 280px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      font-size: 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-wrap input:focus {
+      border-color: #999;
+    }
+
+    .search-wrap input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .count {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      margin-left: 4px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+
+    .btn-add:hover {
+      background: #f0f0ee;
+    }
+
+    /* ─── FILTERS ─── */
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-btn {
+      padding: 5px 12px;
+      font-size: 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-btn:hover {
+      background: #f0f0ee;
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background: var(--text-primary);
+      color: #fff;
+      border-color: var(--text-primary);
+    }
+
+    /* ─── GRID ─── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.125rem;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .card:active {
+      transform: translateY(0);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .av-production {
+      background: #E6F1FB;
+      color: #0C447C;
+    }
+
+    .av-biz {
+      background: #F1EFE8;
+      color: #444441;
+    }
+
+    .av-matter {
+      background: #EAF3DE;
+      color: #3B6D11;
+    }
+
+    .av-contents {
+      background: #EEEDFE;
+      color: #3C3489;
+    }
+
+    .av-tps {
+      background: #FAEEDA;
+      color: #854F0B;
+    }
+
+    .av-creative {
+      background: #FAECE7;
+      color: #993C1D;
+    }
+
+    .card-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .card-role {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .dept-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+      margin-top: 5px;
+    }
+
+    .badge-production {
+      background: #E6F1FB;
+      color: #185FA5;
+    }
+
+    .badge-biz {
+      background: #F1EFE8;
+      color: #5F5E5A;
+    }
+
+    .badge-matter {
+      background: #EAF3DE;
+      color: #3B6D11;
+    }
+
+    .badge-contents {
+      background: #EEEDFE;
+      color: #534AB7;
+    }
+
+    .badge-tps {
+      background: #FAEEDA;
+      color: #854F0B;
+    }
+
+    .badge-creative {
+      background: #FAECE7;
+      color: #993C1D;
+    }
+
+    .card-details {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .detail-label {
+      color: var(--text-muted);
+      width: 30px;
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      color: var(--text-primary);
+    }
+
+    .detail-empty {
+      color: #ccc;
+      font-style: italic;
+    }
+
+    .detail-link {
+      color: #185FA5;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .detail-link:hover {
+      text-decoration: underline;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 4rem 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      grid-column: 1 / -1;
+    }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: var(--shadow-lg);
+      animation: modal-in 0.18s ease;
+    }
+
+    @keyframes modal-in {
+      from {
+        opacity: 0;
+        transform: scale(0.97) translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .modal-close:hover {
+      background: #f0f0ee;
+      color: var(--text-primary);
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #888;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn-cancel {
+      border: 1px solid var(--border-strong);
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .btn-cancel:hover {
+      background: #f0f0ee;
+    }
+
+    .btn-save {
+      border: none;
+      background: var(--text-primary);
+      color: #fff;
+    }
+
+    .btn-save:hover {
+      background: #333;
+    }
+
+    .btn-delete {
+      border: 1px solid var(--danger);
+      background: transparent;
+      color: var(--danger);
+    }
+
+    .btn-delete:hover {
+      background: #fff0f0;
+    }
+
+    /* ─── SAVING INDICATOR ─── */
+    .save-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text-primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 500;
+    }
+
+    .save-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .content {
+        padding: 1rem;
+      }
+
+      .topbar {
+        padding: 0 1rem;
+      }
+
+      .user-name {
+        display: none;
+      }
+
+      .controls {
+        flex-wrap: wrap;
+      }
+
+      .search-wrap {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOADING -->
+  <div id="loading-screen">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="login-screen" style="display:none">
+    <div class="login-card">
+      <div class="login-logo">A</div>
+      <div class="login-title">Ambience Inc.</div>
+      <div class="login-desc">사내 연락망에 접근하려면<br>회사 Google 계정으로 로그인하세요</div>
+      <div class="login-domains">
+        <span class="domain-badge">@ambienceseoul.com</span>
+        <span class="domain-badge">@thepairshow.com</span>
+      </div>
+      <button class="btn-google" id="btn-login">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+          <path fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+          <path fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+        </svg>
+        Google 계정으로 로그인
+      </button>
+      <p class="login-note">허용된 도메인의 Google 계정만 접근 가능합니다</p>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="error-screen" style="display:none">
+    <div class="error-card">
+      <div class="error-icon">🔒</div>
+      <div class="error-title">접근 권한이 없습니다</div>
+      <div class="error-msg" id="error-msg-text">이 계정은 사내 연락망에 접근할 수 없습니다.<br>회사 이메일 계정으로 로그인해주세요.</div>
+      <button class="btn-retry" id="btn-retry">다시 로그인</button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app-screen" style="display:none">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-logo">A</div>
+        <span class="topbar-title">사내 연락망</span>
+      </div>
+      <div class="topbar-right">
+        <div class="user-info">
+          <div class="user-avatar-placeholder" id="user-avatar-wrap">?</div>
+          <span class="user-name" id="user-display-name"></span>
+        </div>
+        <button class="btn-logout" id="btn-logout">로그아웃</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="page-header">
+        <h1>구성원 연락처</h1>
+        <p>카드를 클릭해 연락처를 수정할 수 있습니다</p>
+      </div>
+
+      <div class="controls">
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+            stroke-width="1.5">
+            <circle cx="6.5" cy="6.5" r="4.5" />
+            <path d="M11.5 11.5l3 3" stroke-linecap="round" />
+          </svg>
+          <input type="text" id="search" placeholder="이름, 직책 검색..." oninput="render()">
+        </div>
+        <span class="count" id="count"></span>
+        <div class="spacer"></div>
+        <button class="btn-add" onclick="openModal()">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round">
+            <path d="M7 1.5v11M1.5 7h11" />
+          </svg>
+          구성원 추가
+        </button>
+      </div>
+
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title">구성원 추가</span>
+        <button class="modal-close" onclick="closeModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round">
+            <path d="M2 2l10 10M12 2L2 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="field"><label>이름</label><input id="f-name" type="text" placeholder="홍길동"></div>
+      <div class="field"><label>직책</label><input id="f-role" type="text" placeholder="Producer"></div>
+      <div class="field">
+        <label>소속</label>
+        <select id="f-dept">
+          <option value="production">Production Team</option>
+          <option value="biz">경영지원팀</option>
+          <option value="matter">Matter Lab. (Post Team)</option>
+          <option value="contents">Contents IP / Lucent Label</option>
+          <option value="tps">The Pair Show</option>
+          <option value="creative">Visual &amp; Creative Team</option>
+        </select>
+      </div>
+      <div class="field"><label>연락처</label><input id="f-phone" type="tel" placeholder="010-0000-0000"></div>
+      <div class="field"><label>이메일</label><input id="f-email" type="email" placeholder="name@ambienceseoul.com"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">취소</button>
+        <button class="btn-delete" id="btn-delete" style="display:none" onclick="deleteContact()">삭제</button>
+        <button class="btn-save" onclick="saveContact()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="save-toast" id="toast"></div>
+
+  <!-- ═══════════════════════════════════════════════
+     FIREBASE CONFIG — 아래 값을 실제 값으로 교체하세요!
+     Firebase Console > 프로젝트 설정 > 앱에서 복사
+════════════════════════════════════════════════ -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs, query, orderBy }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfkuKbp6aoPbEPkuj9lO_uKTdBPHvole0",
+      authDomain: "ambience-app-1a70f.firebaseapp.com",
+      projectId: "ambience-app-1a70f",
+      storageBucket: "ambience-app-1a70f.firebasestorage.app",
+      messagingSenderId: "74401882402",
+      appId: "1:74401882402:web:785b4e308b1a9fe84f857b"
+    };
+
+    const ALLOWED_DOMAINS = ['ambienceseoul.com', 'thepairshow.com'];
+
+    // 최초 seed 데이터
+    const INITIAL_CONTACTS = [
+      { name: '전상아', role: 'Senior Producer', dept: 'production' },
+      { name: '박승범', role: 'Producer', dept: 'production' },
+      { name: '조효영', role: 'Producer', dept: 'production' },
+      { name: '방세영', role: 'Production Manager', dept: 'production' },
+      { name: '조혜수', role: 'Production Manager', dept: 'production' },
+      { name: '신여은', role: '조감독', dept: 'production' },
+      { name: '박주성', role: '조감독', dept: 'production' },
+      { name: '이주엽', role: '조감독', dept: 'production' },
+      { name: '이하리', role: 'Operation Manager', dept: 'biz' },
+      { name: '박지윤', role: 'Operation Coordinator', dept: 'biz' },
+      { name: '김DQ', role: '3D Lead', dept: 'matter' },
+      { name: '이혜주', role: '2D Compositor', dept: 'matter' },
+      { name: '채재희', role: 'Producer', dept: 'contents' },
+      { name: '장근주', role: 'Production Manager', dept: 'contents' },
+      { name: '김인철', role: 'Founder / Head Promoter', dept: 'tps' },
+      { name: '이세온', role: 'Project Manager', dept: 'tps' },
+      { name: '원준희', role: 'Project Manager', dept: 'tps' },
+      { name: '김채영', role: 'Graphic Designer', dept: 'creative' },
+    ];
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    // ─── Screens ───
+    const screens = {
+      loading: document.getElementById('loading-screen'),
+      login: document.getElementById('login-screen'),
+      error: document.getElementById('error-screen'),
+      app: document.getElementById('app-screen'),
+    };
+
+    function show(name) {
+      Object.entries(screens).forEach(([k, el]) => {
+        el.style.display = (k === name) ? (k === 'login' || k === 'error' ? 'flex' : 'block') : 'none';
+      });
+    }
+
+    // ─── Auth ───
+    onAuthStateChanged(auth, user => {
+      if (!user) { show('login'); return; }
+      const domain = user.email.split('@')[1];
+      if (!ALLOWED_DOMAINS.includes(domain)) {
+        const msg = document.getElementById('error-msg-text');
+        msg.innerHTML = `<strong>${user.email}</strong><br>이 계정은 접근 권한이 없습니다.<br>회사 이메일로 다시 로그인해주세요.`;
+        signOut(auth);
+        show('error');
+        return;
+      }
+      // 사용자 UI 세팅
+      const nameEl = document.getElementById('user-display-name');
+      const avatarEl = document.getElementById('user-avatar-wrap');
+      nameEl.textContent = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+      if (user.photoURL) {
+        avatarEl.outerHTML = `<img class="user-avatar" id="user-avatar-wrap" src="${user.photoURL}" alt="${nameEl.textContent}">`;
+      } else {
+        avatarEl.textContent = (user.displayName || user.email)[0].toUpperCase();
+      }
+      show('app');
+      initApp();
+    });
+
+    document.getElementById('btn-login').onclick = async () => {
+      try { await signInWithPopup(auth, provider); }
+      catch (e) { console.error(e); }
+    };
+
+    document.getElementById('btn-retry').onclick = () => {
+      show('login');
+    };
+
+    document.getElementById('btn-logout').onclick = () => {
+      signOut(auth);
+      contacts = [];
+      render();
+    };
+
+    // ─── App Logic ───
+    const DEPTS = {
+      production: { label: 'Production Team', badge: 'badge-production', av: 'av-production' },
+      biz: { label: '경영지원팀', badge: 'badge-biz', av: 'av-biz' },
+      matter: { label: 'Matter Lab.', badge: 'badge-matter', av: 'av-matter' },
+      contents: { label: 'Contents IP / Lucent Label', badge: 'badge-contents', av: 'av-contents' },
+      tps: { label: 'The Pair Show', badge: 'badge-tps', av: 'av-tps' },
+      creative: { label: 'Visual & Creative Team', badge: 'badge-creative', av: 'av-creative' },
+    };
+
+    let contacts = [];
+    let currentFilter = 'all';
+    let editingId = null;
+    let unsubscribe = null;
+
+    function initApp() {
+      buildFilters();
+      subscribeContacts();
+    }
+
+    async function subscribeContacts() {
+      if (unsubscribe) unsubscribe();
+      const col = collection(db, 'contacts');
+      // 먼저 데이터 있는지 확인 후 seed
+      const snap = await getDocs(col);
+      if (snap.empty) {
+        await seedInitialData();
+      }
+      // 실시간 리스닝
+      unsubscribe = onSnapshot(query(col, orderBy('name')), snapshot => {
+        contacts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        render();
+      });
+    }
+
+    async function seedInitialData() {
+      const col = collection(db, 'contacts');
+      for (const c of INITIAL_CONTACTS) {
+        await addDoc(col, { ...c, phone: '', email: '', createdAt: Date.now() });
+      }
+    }
+
+    function initials(name) {
+      const clean = name.replace(/[^가-힣a-zA-Z]/g, '');
+      return clean.length >= 2 ? clean.slice(0, 2) : name.slice(0, 2);
+    }
+
+    function buildFilters() {
+      const all = [{ key: 'all', label: '전체' }, ...Object.entries(DEPTS).map(([k, v]) => ({ key: k, label: v.label }))];
+      document.getElementById('filters').innerHTML = all.map(d =>
+        `<button class="filter-btn${d.key === 'all' ? ' active' : ''}" data-dept="${d.key}" onclick="setFilter(this)">${d.label}</button>`
+      ).join('');
+    }
+
+    window.setFilter = el => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      currentFilter = el.dataset.dept;
+      render();
+    };
+
+    window.render = () => {
+      const q = (document.getElementById('search')?.value || '').trim().toLowerCase();
+      const list = contacts.filter(c => {
+        const matchDept = currentFilter === 'all' || c.dept === currentFilter;
+        const matchQ = !q || [c.name, c.role, DEPTS[c.dept]?.label || ''].some(s => s.toLowerCase().includes(q));
+        return matchDept && matchQ;
+      });
+      document.getElementById('count').textContent = `${list.length}명`;
+      const grid = document.getElementById('grid');
+      if (!list.length) {
+        grid.innerHTML = '<div class="empty">검색 결과가 없습니다.</div>';
+        return;
+      }
+      grid.innerHTML = list.map(c => {
+        const d = DEPTS[c.dept] || DEPTS.production;
+        const phoneEl = c.phone ? `<span class="detail-value">${c.phone}</span>` : `<span class="detail-empty">미입력</span>`;
+        const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
+        return `<div class="card" onclick="openModal('${c.id}')">
+        <div class="card-top">
+          <div class="avatar ${d.av}">${initials(c.name)}</div>
+          <div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-role">${c.role}</div>
+            <span class="dept-badge ${d.badge}">${d.label}</span>
+          </div>
+        </div>
+        <div class="card-details">
+          <div class="detail-row"><span class="detail-label">전화</span>${phoneEl}</div>
+          <div class="detail-row"><span class="detail-label">메일</span>${emailEl}</div>
+        </div>
+      </div>`;
+      }).join('');
+    };
+
+    window.openModal = id => {
+      editingId = id || null;
+      document.getElementById('modal-title').textContent = id ? '정보 수정' : '구성원 추가';
+      document.getElementById('btn-delete').style.display = id ? 'block' : 'none';
+      if (id) {
+        const c = contacts.find(x => x.id === id);
+        if (c) {
+          document.getElementById('f-name').value = c.name || '';
+          document.getElementById('f-role').value = c.role || '';
+          document.getElementById('f-dept').value = c.dept || 'production';
+          document.getElementById('f-phone').value = c.phone || '';
+          document.getElementById('f-email').value = c.email || '';
+        }
+      } else {
+        ['f-name', 'f-role', 'f-phone', 'f-email'].forEach(fid => { document.getElementById(fid).value = ''; });
+        document.getElementById('f-dept').value = 'production';
+      }
+      document.getElementById('modal').classList.add('open');
+      setTimeout(() => document.getElementById('f-name').focus(), 100);
+    };
+
+    window.closeModal = () => {
+      document.getElementById('modal').classList.remove('open');
+      editingId = null;
+    };
+
+    window.saveContact = async () => {
+      const data = {
+        name: document.getElementById('f-name').value.trim(),
+        role: document.getElementById('f-role').value.trim(),
+        dept: document.getElementById('f-dept').value,
+        phone: document.getElementById('f-phone').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+      };
+      if (!data.name) {
+        document.getElementById('f-name').focus();
+        return;
+      }
+      closeModal();
+      try {
+        if (editingId) {
+          await updateDoc(doc(db, 'contacts', editingId), data);
+          showToast('✓ 저장되었습니다');
+        } else {
+          await addDoc(collection(db, 'contacts'), { ...data, createdAt: Date.now() });
+          showToast('✓ 추가되었습니다');
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('⚠ 저장 실패. 다시 시도해주세요');
+      }
+    };
+
+    window.deleteContact = async () => {
+      if (!editingId) return;
+      if (!confirm('정말 삭제하시겠습니까?')) return;
+      closeModal();
+      try {
+        await deleteDoc(doc(db, 'contacts', editingId));
+        showToast('삭제되었습니다');
+      } catch (e) {
+        console.error(e);
+        showToast('⚠ 삭제 실패. 다시 시도해주세요');
+      }
+    };
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // 모달 배경 클릭 닫기
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // 키보드 단축키
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        if (document.getElementById('modal').classList.contains('open')) saveContact();
+      }
+    });
+  </script>
+</body>
+
+</html>
