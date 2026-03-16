@@ -1090,6 +1090,87 @@
       }
     }
 
+    /* 휴대폰 액션시트 */
+    .phone-sheet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 400;
+      align-items: flex-end;
+    }
+
+    .phone-sheet-overlay.open {
+      display: flex;
+    }
+
+    .phone-sheet {
+      width: 100%;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      padding: 1rem 1rem 1.5rem;
+      animation: slide-up 0.2s ease;
+    }
+
+    .sheet-contact-info {
+      text-align: center;
+      padding: 0.5rem 0 1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+    }
+
+    .sheet-contact-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .sheet-contact-num {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .sheet-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 8px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: background 0.12s;
+      text-align: left;
+    }
+
+    .sheet-action-btn:hover {
+      background: #f5f5f3;
+    }
+
+    .sheet-icon {
+      font-size: 20px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .sheet-cancel-btn {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      border: 1px solid var(--border-strong);
+      background: transparent;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-family: inherit;
+      cursor: pointer;
+    }
+
     /* FAB 데스크톱에서는 숨김 */
     .fab {
       display: none;
@@ -1249,6 +1330,23 @@
 
   <!-- TOAST -->
   <div class="save-toast" id="toast"></div>
+
+  <!-- 휴대폰 전화번호 액션시트 -->
+  <div class="phone-sheet-overlay" id="phone-sheet-overlay" onclick="closePhoneSheet()">
+    <div class="phone-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-contact-info">
+        <div class="sheet-contact-name" id="sheet-name"></div>
+        <div class="sheet-contact-num" id="sheet-num"></div>
+      </div>
+      <a class="sheet-action-btn" id="sheet-call-btn" href="#">
+        <span class="sheet-icon">📞</span><span>전화하기</span>
+      </a>
+      <button class="sheet-action-btn" id="sheet-save-btn" onclick="downloadVCard()">
+        <span class="sheet-icon">💾</span><span>연락처 저장</span>
+      </button>
+      <button class="sheet-cancel-btn" onclick="closePhoneSheet()">취소</button>
+    </div>
+  </div>
 
   <!-- FAB: 모바일 전용 구성원 추가 버튼 -->
   <button class="fab" onclick="openModal()" aria-label="구성원 추가">+</button>
@@ -1482,7 +1580,10 @@
         const cc = c.countryCode || '+82';
         const telHref = c.phone ? `tel:${cc}${c.phone.replace(/[^0-9]/g, '')}` : '';
         const phoneLabel = c.phone ? `${cc} ${c.phone}` : '';
-        const phoneEl = c.phone ? `<a class="detail-call" href="${telHref}">${phoneLabel}</a>` : `<span class="detail-empty">미입력</span>`; const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
+        const phoneEl = c.phone
+          ? `<button class="detail-call" onclick="event.stopPropagation();showPhoneSheet('${c.id}')">${phoneLabel}</button>`
+          : `<span class="detail-empty">미입력</span>`;
+        const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
         return `<div class="card" onclick="openModal('${c.id}')">
         <div class="card-top">
           <div class="avatar ${d.av}">${initials(c.name)}</div>
@@ -1643,6 +1744,50 @@
         console.error(e);
         showToast('⚠ 삭제 실패. 다시 시도해주세요');
       }
+    };
+
+    let _sheetContact = null;
+
+    window.showPhoneSheet = id => {
+      _sheetContact = contacts.find(x => x.id === id);
+      if (!_sheetContact) return;
+      const cc = _sheetContact.countryCode || '+82';
+      const tel = `${cc}${(_sheetContact.phone || '').replace(/[^0-9]/g, '')}`;
+      document.getElementById('sheet-name').textContent = _sheetContact.name + (_sheetContact.engName ? ` (${_sheetContact.engName})` : '');
+      document.getElementById('sheet-num').textContent = `${cc} ${_sheetContact.phone}`;
+      document.getElementById('sheet-call-btn').href = `tel:${tel}`;
+      document.getElementById('phone-sheet-overlay').classList.add('open');
+    };
+
+    window.closePhoneSheet = () => {
+      document.getElementById('phone-sheet-overlay').classList.remove('open');
+      _sheetContact = null;
+    };
+
+    window.downloadVCard = () => {
+      if (!_sheetContact) return;
+      const c = _sheetContact;
+      const cc = c.countryCode || '+82';
+      const tel = c.phone ? `${cc}${c.phone.replace(/[^0-9]/g, '')}` : '';
+      const ln = c.name.charAt(0);
+      const fn = c.name.slice(1);
+      const lines = [
+        'BEGIN:VCARD', 'VERSION:3.0',
+        `N:${ln};${fn};;;`,
+        `FN:${c.name}`,
+        c.engName ? `NICKNAME:${c.engName}` : null,
+        tel ? `TEL;TYPE=CELL:${tel}` : null,
+        c.email ? `EMAIL:${c.email}` : null,
+        'ORG:Ambience Inc.',
+        c.role ? `TITLE:${c.role}` : null,
+        'END:VCARD'
+      ].filter(Boolean).join('\n');
+      const blob = new Blob([lines], { type: 'text/vcard' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${c.name}.vcf`; a.click();
+      URL.revokeObjectURL(url);
+      closePhoneSheet();
     };
 
     function showToast(msg) {
