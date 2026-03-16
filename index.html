@@ -1673,10 +1673,11 @@
         email: document.getElementById('f-email').value.trim(),
       };
       if (!data.name) { document.getElementById('f-name').focus(); return; }
+      const idToSave = editingId;
       closeModal();
       try {
-        if (editingId) {
-          await updateDoc(doc(db, 'contacts', editingId), data);
+        if (idToSave) {
+          await updateDoc(doc(db, 'contacts', idToSave), data);
           showToast('✓ 저장되었습니다');
         } else {
           await addDoc(collection(db, 'contacts'), { ...data, createdAt: Date.now() });
