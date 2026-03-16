@@ -1482,10 +1482,10 @@
       grid.innerHTML = list.map(c => {
         const d = DEPTS[c.dept] || DEPTS.production;
         const cc = c.countryCode || '+82';
-        const telHref = c.phone ? `tel:${cc}${c.phone.replace(/[^0-9]/g, '')}` : '';
+        const telNum = c.phone ? `${cc}${c.phone.replace(/[^0-9]/g, '')}` : '';
         const phoneLabel = c.phone ? `${cc} ${c.phone}` : '';
         const phoneEl = c.phone
-          ? `<a class="detail-call" href="tel:${telHref}" onclick="event.stopPropagation()">${phoneLabel}</a>`
+          ? `<a class="detail-call" href="tel:${telNum}" onclick="event.stopPropagation()">${phoneLabel}</a>`
           : `<span class="detail-empty">미입력</span>`;
         const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}" onclick="event.stopPropagation()">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
         return `<div class="card" onclick="openModal('${c.id}')">
