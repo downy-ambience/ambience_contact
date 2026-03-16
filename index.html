@@ -982,6 +982,84 @@
       .search-wrap {
         max-width: 100%;
       }
+
+      /* 휴대폰: 구성원 추가 버튼 숨김 (FAB으로 대체) */
+      .btn-add {
+        display: none;
+      }
+
+      /* FAB */
+      .fab {
+        display: flex;
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #111;
+        color: #fff;
+        border: none;
+        font-size: 26px;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+        align-items: center;
+        justify-content: center;
+        z-index: 300;
+        transition: transform 0.15s, box-shadow 0.15s;
+      }
+
+      .fab:hover {
+        transform: scale(1.07);
+      }
+
+      .fab:active {
+        transform: scale(0.95);
+      }
+
+      /* 모달 바텀시트에서 위로 슬라이드업 */
+      .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .modal {
+        max-width: 100%;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slide-up 0.22s ease;
+      }
+
+      @keyframes slide-up {
+        from {
+          transform: translateY(40px);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* 커드 연락처 클릭가능 링크 */
+      .detail-link,
+      .detail-call {
+        font-size: 12px;
+        padding: 2px 0;
+      }
+
+      .detail-call {
+        color: #185FA5;
+        text-decoration: none;
+      }
+    }
+
+    /* FAB 데스크톱에서는 숨김 */
+    .fab {
+      display: none;
     }
   </style>
 </head>
@@ -1121,6 +1199,9 @@
 
   <!-- TOAST -->
   <div class="save-toast" id="toast"></div>
+
+  <!-- FAB: 모바일 전용 구성원 추가 버튼 -->
+  <button class="fab" onclick="openModal()" aria-label="구성원 추가">+</button>
 
   <!-- ═══════════════════════════════════════════════
      FIREBASE CONFIG — 아래 값을 실제 값으로 교체하세요!
@@ -1337,7 +1418,7 @@
       }
       grid.innerHTML = list.map(c => {
         const d = DEPTS[c.dept] || DEPTS.production;
-        const phoneEl = c.phone ? `<span class="detail-value">${c.phone}</span>` : `<span class="detail-empty">미입력</span>`;
+        const phoneEl = c.phone ? `<a class="detail-call" href="tel:${c.phone}">${c.phone}</a>` : `<span class="detail-empty">미입력</span>`;
         const emailEl = c.email ? `<a class="detail-link" href="mailto:${c.email}">${c.email}</a>` : `<span class="detail-empty">미입력</span>`;
         return `<div class="card" onclick="openModal('${c.id}')">
         <div class="card-top">
