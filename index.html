@@ -1225,7 +1225,7 @@
       <div class="field">
         <label>연락수 (국가코드)</label>
         <div class="phone-group">
-          <select id="f-countrycode" class="phone-country">
+          <select id="f-countrycode" class="phone-country" onchange="formatPhoneInput()">
             <option value="+82">🇰🇷 +82</option>
             <option value="+1">🇺🇸 +1</option>
             <option value="+81">🇯🇵 +81</option>
@@ -1236,7 +1236,7 @@
             <option value="+49">🇩🇪 +49</option>
             <option value="+33">🇫🇷 +33</option>
           </select>
-          <input id="f-phone" type="tel" placeholder="010-0000-0000">
+          <input id="f-phone" type="tel" placeholder="010-0000-0000" oninput="formatPhoneInput()">
         </div>
       </div>
       <div class="field"><label>이메일</label><input id="f-email" type="email" placeholder="name@ambienceseoul.com"></div>
@@ -1581,6 +1581,57 @@
         `;
       }).join('');
     }
+
+    // 국가별 전화번호 자동 포맷팅
+    const PHONE_PLACEHOLDERS = {
+      '+82': '010-0000-0000',
+      '+1': '212-555-1234',
+      '+81': '090-1234-5678',
+      '+86': '138-0000-0000',
+      '+44': '7911-123456',
+      '+61': '0412-345-678',
+      '+65': '9123-4567',
+      '+49': '151-1234-5678',
+      '+33': '06-12-34-56-78',
+    };
+
+    function formatPhone(digits, cc) {
+      if (!digits) return '';
+      switch (cc) {
+        case '+82': // KR: 010-1234-5678 or 02-123-4567
+          if (digits.startsWith('02')) {
+            if (digits.length <= 5) return digits.replace(/(\d{2})(\d+)/, '$1-$2');
+            if (digits.length <= 9) return digits.replace(/(\d{2})(\d{3,4})(\d+)/, '$1-$2-$3');
+            return digits.replace(/(\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+          }
+          if (digits.length <= 3) return digits;
+          if (digits.length <= 7) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+          return digits.replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
+        case '+1': // US: 212-555-1234
+          if (digits.length <= 3) return digits;
+          if (digits.length <= 6) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+          return digits.replace(/(\d{3})(\d{3})(\d+)/, '$1-$2-$3');
+        case '+81': // JP: 090-1234-5678
+          if (digits.length <= 3) return digits;
+          if (digits.length <= 7) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+          return digits.replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
+        case '+44': // UK: 7911-123456
+          if (digits.length <= 4) return digits;
+          return digits.replace(/(\d{4})(\d+)/, '$1-$2');
+        case '+33': // FR: 06-12-34-56-78
+          return digits.replace(/(\d{2})(?=\d)/g, '$1-').replace(/-$/, '');
+        default: // 기본: 4자리마다 하이픈
+          return digits.replace(/(\d{4})(?=\d)/g, '$1-');
+      }
+    }
+
+    window.formatPhoneInput = () => {
+      const phoneInput = document.getElementById('f-phone');
+      const cc = document.getElementById('f-countrycode').value;
+      const raw = phoneInput.value.replace(/[^0-9]/g, '');
+      phoneInput.value = formatPhone(raw, cc);
+      phoneInput.placeholder = PHONE_PLACEHOLDERS[cc] || '0000-0000';
+    };
 
     window.openModal = id => {
       editingId = id || null;
