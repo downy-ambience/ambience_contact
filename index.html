@@ -1736,9 +1736,10 @@
     window.deleteContact = async () => {
       if (!editingId) return;
       if (!confirm('정말 삭제하시겠습니까?')) return;
+      const idToDelete = editingId;
       closeModal();
       try {
-        await deleteDoc(doc(db, 'contacts', editingId));
+        await deleteDoc(doc(db, 'contacts', idToDelete));
         showToast('삭제되었습니다');
       } catch (e) {
         console.error(e);
@@ -1782,11 +1783,15 @@
         c.role ? `TITLE:${c.role}` : null,
         'END:VCARD'
       ].filter(Boolean).join('\n');
-      const blob = new Blob([lines], { type: 'text/vcard' });
-      const url = URL.createObjectURL(blob);
+
+      // iOS Safari 호환: data URI 방식
+      const dataUri = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(lines);
       const a = document.createElement('a');
-      a.href = url; a.download = `${c.name}.vcf`; a.click();
-      URL.revokeObjectURL(url);
+      a.href = dataUri;
+      a.download = `${c.name}.vcf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       closePhoneSheet();
     };
 
