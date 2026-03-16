@@ -542,6 +542,12 @@
       margin-top: 2px;
     }
 
+    .card-eng-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
     .dept-badge {
       display: inline-block;
       font-size: 10px;
@@ -939,6 +945,7 @@
         </button>
       </div>
       <div class="field"><label>이름</label><input id="f-name" type="text" placeholder="홍길동"></div>
+      <div class="field"><label>영어 이름</label><input id="f-engname" type="text" placeholder="Hong Gildong"></div>
       <div class="field"><label>직책</label><input id="f-role" type="text" placeholder="Producer"></div>
       <div class="field">
         <label>소속</label>
@@ -985,6 +992,25 @@
     };
 
     const ALLOWED_DOMAINS = ['ambienceseoul.com', 'thepairshow.com'];
+
+    // 이메일 & 영어 이름 자동 매핑
+    const EMAIL_MAP = {
+      '전상아': { email: 'sangah@ambienceseoul.com', engName: 'Jeon Sangah' },
+      '박승범': { email: 'doman@ambienceseoul.com', engName: 'Park Seungbeom' },
+      '조효영': { email: 'hyo_0@ambienceseoul.com', engName: 'Jo Hyoyoung' },
+      '방세영': { email: 'sy@ambienceseoul.com', engName: 'Bang Seyoung' },
+      '조혜수': { email: 'summer@ambienceseoul.com', engName: 'Hyesu Cho' },
+      '신여은': { email: 'joanne@ambienceseoul.com', engName: 'Shin Joanne' },
+      '박주성': { email: 'ju@ambienceseoul.com', engName: 'Park Jusung' },
+      '이주엽': { email: 'neo@ambienceseoul.com', engName: 'Lee Juyeop' },
+      '이하리': { email: 'tax@ambienceseoul.com', engName: 'Lee Hari' },
+      '박지윤': { email: 'jiyoon@ambienceseoul.com', engName: 'Park Jiyoon' },
+      '김DQ': { email: 'dq@ambienceseoul.com', engName: 'KIM DQ' },
+      '이혜주': { email: 'hyeju@ambienceseoul.com', engName: 'Lee Hyeju' },
+      '채재희': { email: 'jerry@ambienceseoul.com', engName: 'Chae Jaehee' },
+      '장근주': { email: 'juya@ambienceseoul.com', engName: 'Jang Geunju' },
+      '김채영': { email: 'aubrie@ambienceseoul.com', engName: 'Kim Chaeyoung' },
+    };
 
     // 최초 seed 데이터
     const INITIAL_CONTACTS = [
@@ -1089,12 +1115,12 @@
     async function subscribeContacts() {
       if (unsubscribe) unsubscribe();
       const col = collection(db, 'contacts');
-      // 먼저 데이터 있는지 확인 후 seed
       const snap = await getDocs(col);
       if (snap.empty) {
         await seedInitialData();
+      } else {
+        await runMigration(snap);
       }
-      // 실시간 리스닝
       unsubscribe = onSnapshot(query(col, orderBy('name')), snapshot => {
         contacts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         render();
@@ -1104,7 +1130,22 @@
     async function seedInitialData() {
       const col = collection(db, 'contacts');
       for (const c of INITIAL_CONTACTS) {
-        await addDoc(col, { ...c, phone: '', email: '', createdAt: Date.now() });
+        const mapped = EMAIL_MAP[c.name] || {};
+        await addDoc(col, { ...c, phone: '', email: mapped.email || '', engName: mapped.engName || '', createdAt: Date.now() });
+      }
+    }
+
+    async function runMigration(snap) {
+      for (const docSnap of snap.docs) {
+        const data = docSnap.data();
+        const mapped = EMAIL_MAP[data.name];
+        if (!mapped) continue;
+        const updates = {};
+        if (!data.email && mapped.email) updates.email = mapped.email;
+        if (!data.engName && mapped.engName) updates.engName = mapped.engName;
+        if (Object.keys(updates).length > 0) {
+          await updateDoc(doc(db, 'contacts', docSnap.id), updates);
+        }
       }
     }
 
@@ -1149,6 +1190,7 @@
           <div class="avatar ${d.av}">${initials(c.name)}</div>
           <div>
             <div class="card-name">${c.name}</div>
+            ${c.engName ? `<div class="card-eng-name">${c.engName}</div>` : ''}
             <div class="card-role">${c.role}</div>
             <span class="dept-badge ${d.badge}">${d.label}</span>
           </div>
@@ -1169,13 +1211,14 @@
         const c = contacts.find(x => x.id === id);
         if (c) {
           document.getElementById('f-name').value = c.name || '';
+          document.getElementById('f-engname').value = c.engName || '';
           document.getElementById('f-role').value = c.role || '';
           document.getElementById('f-dept').value = c.dept || 'production';
           document.getElementById('f-phone').value = c.phone || '';
           document.getElementById('f-email').value = c.email || '';
         }
       } else {
-        ['f-name', 'f-role', 'f-phone', 'f-email'].forEach(fid => { document.getElementById(fid).value = ''; });
+        ['f-name', 'f-engname', 'f-role', 'f-phone', 'f-email'].forEach(fid => { document.getElementById(fid).value = ''; });
         document.getElementById('f-dept').value = 'production';
       }
       document.getElementById('modal').classList.add('open');
@@ -1190,6 +1233,7 @@
     window.saveContact = async () => {
       const data = {
         name: document.getElementById('f-name').value.trim(),
+        engName: document.getElementById('f-engname').value.trim(),
         role: document.getElementById('f-role').value.trim(),
         dept: document.getElementById('f-dept').value,
         phone: document.getElementById('f-phone').value.trim(),
