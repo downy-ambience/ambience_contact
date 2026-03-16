@@ -1311,9 +1311,9 @@
       { name: '조효영', role: 'Producer', dept: 'production' },
       { name: '방세영', role: 'Production Manager', dept: 'production' },
       { name: '조혜수', role: 'Production Manager', dept: 'production' },
-      { name: '신여은', role: '조감독', dept: 'production' },
-      { name: '박주성', role: '조감독', dept: 'production' },
-      { name: '이주엽', role: '조감독', dept: 'production' },
+      { name: '신여은', role: 'Assistant Director', dept: 'production' },
+      { name: '박주성', role: 'Assistant Director', dept: 'production' },
+      { name: '이주엽', role: 'Assistant Director', dept: 'production' },
       { name: '이하리', role: 'Operation Manager', dept: 'biz' },
       { name: '박지윤', role: 'Operation Coordinator', dept: 'biz' },
       { name: '김DQ', role: '3D Lead', dept: 'matter' },
@@ -1541,7 +1541,7 @@
       if (r.includes('senior') || r.includes('lead')) return 2;
       if (r.includes('producer') || r.includes('manager') && !r.includes('production manager') && !r.includes('project manager')) return 3;
       if (r.includes('production manager') || r.includes('project manager')) return 4;
-      if (r.includes('coordinator') || r.includes('조감독')) return 5;
+      if (r.includes('coordinator') || r.includes('assistant director')) return 5;
       if (r.includes('compositor') || r.includes('designer')) return 6;
       return 9;
     }
